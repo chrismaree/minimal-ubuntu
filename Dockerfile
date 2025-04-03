@@ -34,9 +34,9 @@ EXPOSE 7681
 RUN echo $CREDENTIAL > /tmp/debug || true
 
 # Final startup script
-CMD /bin/bash -c "\
+CMD bash -c '\
     mkdir -p /root/.ssh && \
-    echo \"$SSH_KEY\" > /root/.ssh/id_rsa && \
+    echo "$SSH_KEY" > /root/.ssh/id_rsa && \
     chmod 600 /root/.ssh/id_rsa && \
-    echo 'Host *\n  StrictHostKeyChecking no' > /root/.ssh/config && \
-    /bin/ttyd -p $PORT -c $USERNAME:$PASSWORD /bin/bash"
+    echo "Host *\n  StrictHostKeyChecking no" > /root/.ssh/config && \
+    /bin/ttyd -p ${PORT:-7681} -c $USERNAME:$PASSWORD /bin/bash'
