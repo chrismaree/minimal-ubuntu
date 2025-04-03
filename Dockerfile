@@ -18,6 +18,9 @@ RUN apt-get update && \
 
 # Install Oh My Zsh (non-interactive)
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended || true
+RUN echo "/usr/bin/zsh" >> /etc/shells && \
+    chsh -s /usr/bin/zsh root
+
 
 # Install ttyd
 RUN wget -qO /bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.3/ttyd.x86_64 && \
@@ -27,11 +30,8 @@ RUN wget -qO /bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.3/t
 RUN echo "neofetch" >> /root/.bashrc && \
     echo "neofetch" >> /root/.zshrc
 
-# Expose default ttyd port (Railway uses env var at runtime)
+# Expose default ttyd port (Railway uses PORT env var at runtime)
 EXPOSE 7681
-
-# Debug: optional credential dump (can remove if not needed)
-RUN echo $CREDENTIAL > /tmp/debug || true
 
 # Final startup script
 CMD bash -c '\
@@ -39,4 +39,4 @@ CMD bash -c '\
     echo "$SSH_KEY" > /root/.ssh/id_rsa && \
     chmod 600 /root/.ssh/id_rsa && \
     echo "Host *\n  StrictHostKeyChecking no" > /root/.ssh/config && \
-    /bin/ttyd -p ${PORT:-7681} -c $USERNAME:$PASSWORD /bin/bash'
+    /bin/ttyd -p ${PORT:-7681} -c ${USERNAME}:${PASSWORD} /usr/bin/zsh'
